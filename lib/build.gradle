@@ -1,26 +1,24 @@
 plugins {
-    id 'de.undercouch.download' version '2.1.0'
+    id 'de.undercouch.download' version '3.4.3'
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'de.undercouch.download'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.sevar83'
-
-import de.undercouch.gradle.tasks.download.Download
 
 gradle.projectsEvaluated {
-    preBuild.dependsOn(buildSqlite)
+    //preBuild.dependsOn(buildSqlite)
+    preBuild.dependsOn(installSqlite)
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 25
+        minSdkVersion 23
+        targetSdkVersion 28
         versionCode 1
         versionName project.version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,17 +34,22 @@ android {
         abortOnError false
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     // ndk gradle support is still very bad so it's built with the regular ndk-build
     sourceSets.main.jni.srcDirs = ['src/main/none']
+    externalNativeBuild {
+        ndkBuild {
+            path file('src/main/jni/Application.mk')
+        }
+    }
 }
 
 dependencies {
-    compile 'com.android.support:support-core-utils:25.3.1'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
+    implementation 'com.android.support:support-core-utils:28.0.0'
+    testImplementation 'com.android.support.test:runner:1.0.2'
+    testImplementation 'com.android.support.test:rules:1.0.2'
 }
 
 ext {
@@ -62,7 +65,7 @@ task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     classpath += configurations.compile
-    failOnError false;
+    failOnError false
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
